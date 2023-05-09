@@ -2,11 +2,11 @@
 
 // array to store the movies
 let movies = [
-  { id: 1, title: "Rambo", movie: "Action" },
-  { id: 2, title: "Die Hart", name: "Comedy" },
-  { id: 3, title: "Tetris", name: "Drama" },
-  { id: 4, title: "Purple Heart", name: "Romance" },
-  { id: 5, title: "Emancipation", name: "History" },
+  { id: 1, title: "Rambo", genre: "Action" },
+  { id: 2, title: "Die Hart", genre: "Comedy" },
+  { id: 3, title: "Tetris", genre: "Drama" },
+  { id: 4, title: "Purple Heart", genre: "Romance" },
+  { id: 5, title: "Emancipation", genre: "History" },
 ];
 
 const movieContollers = {
@@ -20,7 +20,9 @@ const movieContollers = {
   },
   // GET A SINGLE MOVIE
   getSingleMovieController: (req, res) => {
-    const movie = movies.find((mov) => mov.title.toLowerCase() === req.params.title);
+    const movie = movies.find(
+      (mov) => mov.title.toLowerCase() === req.params.title
+    );
     if (!movie)
       return res.status(404).json({
         status: "failed",
@@ -56,7 +58,9 @@ const movieContollers = {
   deleteMovieController: (req, res) => {
     const movie = movies.find((mov) => mov.id === parseInt(req.params.id));
     if (!movie)
-      return res.status(404).send("The movie with the given ID was not found.");
+      return res
+        .status(404)
+        .send("The movie with the given ID was not found .");
     const index = movies.indexOf(movie);
     movies.splice(index, 1);
     res.status(200).json({
