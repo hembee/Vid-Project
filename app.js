@@ -1,6 +1,8 @@
-const express = require("express");
+const {express} = require("express");
 require("dotenv").config();
 const { movieRouter } = require("./src/routes/movies.router");
+const { userRouter } = require("./src/routes/users.router");
+
 // const mongoose = require("mongoose");
 
 // DATABASE CONNECTION
@@ -14,7 +16,8 @@ const port = Number(process.env.PORT) || 4000;
 app.use(express.json());
 
 // ROUTES
-app.use("/api/movies/v1", movieRouter);
+app.use("/api/v1/movies", movieRouter);
+app.use("/api/v1/users", userRouter);
 
 // GLOBAL ERROR HANDLER
 app.use((err, res, req, next) => {

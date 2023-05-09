@@ -1,4 +1,5 @@
-// const Movie = require("../models/movies.model")
+const Movie = require("../models/movies.model");
+const createMovieValidator = require("../validators/movies.validator");
 
 // array to store the movies
 let movies = [
@@ -36,23 +37,25 @@ const movieContollers = {
   },
   // CREATE A MOVIE
   createNewMovieController: (req, res) => {
-    //  const newMovie = Movie.create(req.body);
-    //  res.status(201).json({
-    //    message: "Movie added succesfully",
-    //    status: "Success",
-    //    data: { movie: newMovie },
-    //  });
-    const movie = {
-      id: movies.length + 1,
-      title: req.body.title,
-      genre: req.body.genre,
-    };
-    movies.push(movie);
-    res.status(201).json({
-      Status: "Success",
-      message: "Movie created",
-      data: { createdMovie: movie },
-    });
+    const { error, value } = createMovieValidator.validate(req.body);
+    if (error) throw error
+     const newMovie = Movie.create(req.body);
+     res.status(201).json({
+       message: "Movie added succesfully",
+       status: "Success",
+       data: { movie: newMovie },
+     });
+    // const movie = {
+    //   id: movies.length + 1,
+    //   title: req.body.title,
+    //   genre: req.body.genre,
+    // };
+    // movies.push(movie);
+    // res.status(201).json({
+    //   Status: "Success",
+    //   message: "Movie created",
+    //   data: { createdMovie: movie },
+    // });
   },
   // DELETE A MOVIE
   deleteMovieController: (req, res) => {
