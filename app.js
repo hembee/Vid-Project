@@ -2,6 +2,7 @@ const express = require("express");
 require("dotenv").config();
 const { movieRouter } = require("./src/routes/movies.router");
 const { userRouter } = require("./src/routes/users.router");
+const globalErrorHandler = require("./src/utils/errorHandler");
 
 // const mongoose = require("mongoose");
 
@@ -20,12 +21,7 @@ app.use("/api/v1/movies", movieRouter);
 app.use("/api/v1/users", userRouter);
 
 // GLOBAL ERROR HANDLER
-app.use((err, res, req, next) => {
-  return res.status(err.status || 400).json({
-    message: err.message,
-    Status: "Failed",
-  });
-});
+app.use(globalErrorHandler);
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
