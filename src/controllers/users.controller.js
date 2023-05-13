@@ -4,15 +4,15 @@ const createUserValidator = require("../validators/users.validator");
 require("dotenv").config();
 
 const usersControllers = {
-  createUserController: (req, res) => {
+  createUserController: async (req, res) => {
     const { error } = createUserValidator.validate(req.body);
     if (error) throw error;
-    const emailExists = User.find({ email: req.body.email });
+    const emailExists = await User.find({ email: req.body.email });
     if (emailExists.length > 0)
       throw new BadUserRequestError(
         "An account with this email already exists."
       );
-    const usernameExists = User.find({ username: req.body.username });
+    const usernameExists = await User.find({ username: req.body.username });
     if (usernameExists.length > 0)
       throw new BadUserRequestError("Username exists.");
     const saltRounds = Number(process.env.BCRYPT_SALT_ROUND);
@@ -22,14 +22,14 @@ const usersControllers = {
       email: req.body.email,
       password: hashedPassword,
     };
-    const newUser = User.create(user);
+    const newUser = await User.create(user);
     res.status(201).json({
       status: "Success",
       message: "user created succesfully",
       data: newUser,
     });
   },
-  findUserController: (req, res) => {
+  findUserController: async (req, res) => {
     const { id } = req.params.id;
     const user = User.findById(id);
     if (!user) throw new NotFoundError("User not found");
