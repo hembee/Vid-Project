@@ -1,5 +1,6 @@
 const { NotFoundError, BadUserRequestError } = require("../error/error");
 const User = require("../models/users.model");
+const generateToken = require("../utils/jwt.utils");
 const createUserValidator = require("../validators/users.validator");
 require("dotenv").config();
 
@@ -27,11 +28,12 @@ const usersControllers = {
       status: "Success",
       message: "user created succesfully",
       data: newUser,
+      access_token: generateToken(newUser),
     });
   },
   findUserController: async (req, res) => {
     const { id } = req.params.id;
-    const user = User.findById(id);
+    const user = await User.findById(id);
     if (!user) throw new NotFoundError("User not found");
 
     res.status(200).json({
@@ -42,14 +44,14 @@ const usersControllers = {
       },
     });
   },
-  loginUSer: (req, res) => {
+  loginUSer: async (req, res) => {
     const { error } = loginUserValidator.validate(req.body);
     if (error) throw error;
     if (!req.body?.username && !req.body?.email)
       throw new BadUserRequestError(
         "Please provide a username and email before you can login."
       );
-    const user = User.findOne({
+    const user = await User.findOne({
       $or: [
         {
           email: req.body?.email,
@@ -67,6 +69,7 @@ const usersControllers = {
       status: "Success",
       data: {
         user,
+        access_token: generateToken(user),
       },
     });
   },
