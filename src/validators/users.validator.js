@@ -19,4 +19,10 @@ const createUserValidator = Joi.object({
     }),
 }).strict();
 
-module.exports = createUserValidator;
+const loginUserValidator = Joi.object({
+  username: Joi.string().optional(),
+  email: Joi.string().optional(),
+  password: Joi.string().required(),
+}).strict();
+
+module.exports = { createUserValidator, loginUserValidator };

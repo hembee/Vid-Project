@@ -1,8 +1,15 @@
 const mongoose = require("mongoose");
 
 const movieSchema = new mongoose.Schema({
-  id: {
-    type: Number,
+  creator: {
+    type: mongoose.Types.ObjectId,
+    ref: "User",
+    required: true,
+  },
+  creatorId: String,
+  isDeleted: {
+    type: Boolean,
+    default: false,
   },
   title: {
     type: String,

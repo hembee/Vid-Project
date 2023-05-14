@@ -1,34 +1,43 @@
+const User = require("../models/users.model");
 const Movie = require("../models/movies.model");
-const createMovieValidator = require("../validators/movies.validator");
-
-// array to store the movies
-let movies = [
-  { id: 1, title: "Rambo", genre: "Action" },
-  { id: 2, title: "Die Hart", genre: "Comedy" },
-  { id: 3, title: "Tetris", genre: "Drama" },
-  { id: 4, title: "Purple Heart", genre: "Romance" },
-  { id: 5, title: "Emancipation", genre: "History" },
-];
+const {
+  createMovieValidator,
+  updateMovieValidator,
+} = require("../validators/movies.validator");
+const mongoIdValidator = require("../validators/mongoId.validator");
+const { BadUserRequestError, NotFoundError } = require("../error/error");
 
 const movieContollers = {
   // GET ALL THE MOVIES
-  getAllMoviesController: (req, res) => {
-    res.status(200).json({
-      status: "Successful",
-      message: "Movies found",
-      data: { movies },
+  getAllMoviesController: async (req, res) => {
+    const id = req.user._id;
+    const { error } = mongoIdValidator.validate(req.query);
+    if (error) throw new BadUserRequestError("Please pass in a valid mongoId");
+
+    const user = await User.findById(id);
+    if (!user)
+      throw new NotFoundError(`The user with this id: ${id}, does not exist`);
+
+    const movies = await Movie.find({ creatorId: id }).populate("creator");
+
+    return res.status(200).json({
+      message:
+        movies.length < 1 ? "No movies found" : "Movies found successfully",
+      status: "Success",
+      data: {
+        movies: movies,
+      },
     });
   },
   // GET A SINGLE MOVIE
-  getSingleMovieController: (req, res) => {
-    const movie = movies.find(
-      (mov) => mov.title.toLowerCase() === req.params.title
-    );
+  getSingleMovieController: async (req, res) => {
+    const { id } = req.query;
+    const { error } = mongoIdValidator.validate(req.query);
+    if (error) throw new BadUserRequestError("Please pass in a valid mongoId");
+
+    const movie = await Movie.findById(id);
     if (!movie)
-      return res.status(404).json({
-        status: "failed",
-        message: "Please pass in a Movie title",
-      });
+      throw new NotFoundError(`The movie with this id: ${id}, does not exist`);
     return res.status(200).json({
       status: "success",
       message: "Movie found",
@@ -38,13 +47,17 @@ const movieContollers = {
   // CREATE A MOVIE
   createNewMovieController: (req, res) => {
     const { error, value } = createMovieValidator.validate(req.body);
-    if (error) throw error
-     const newMovie = Movie.create(req.body);
-     res.status(201).json({
-       message: "Movie added succesfully",
-       status: "Success",
-       data: { movie: newMovie },
-     });
+    if (error) throw error;
+    const newMovie = Movie.create({
+      ...req.body,
+      creator: req.user._id,
+      creatorId: req.user._id,
+    });
+    res.status(201).json({
+      message: "Movie added succesfully",
+      status: "Success",
+      data: { movie: newMovie },
+    });
     // const movie = {
     //   id: movies.length + 1,
     //   title: req.body.title,
@@ -58,14 +71,18 @@ const movieContollers = {
     // });
   },
   // DELETE A MOVIE
-  deleteMovieController: (req, res) => {
-    const movie = movies.find((mov) => mov.id === parseInt(req.params.id));
+  deleteMovieController: async (req, res) => {
+    const { id } = req.query;
+    const { error } = mongoIdValidator.validate(req.query);
+    if (error) throw new BadUserRequestError("Please pass in a valid mongoId");
+
+    const movie = await Movie.findById(id);
     if (!movie)
-      return res
-        .status(404)
-        .send("The movie with the given ID was not found .");
-    const index = movies.indexOf(movie);
-    movies.splice(index, 1);
+      throw new NotFoundError(`The movie with this id: ${id}, does not exist`);
+
+    await Movie.findByIdAndUpdate(id, {
+      isDeleted: true,
+    });
     res.status(200).json({
       Status: "Success",
       message: "Movie deleted",
