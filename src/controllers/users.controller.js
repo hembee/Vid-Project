@@ -1,7 +1,11 @@
 const { NotFoundError, BadUserRequestError } = require("../error/error");
 const User = require("../models/users.model");
-const generateToken = require("../utils/jwt.utils");
-const createUserValidator = require("../validators/users.validator");
+const bcrypt = require("bcrypt");
+const {generateToken} = require("../utils/jwt.utils");
+const {
+  createUserValidator,
+  loginUserValidator,
+} = require("../validators/users.validator");
 require("dotenv").config();
 
 const usersControllers = {

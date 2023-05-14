@@ -19,8 +19,8 @@ app.use(express.json());
 app.use(morgan("tiny"));
 
 // ROUTES
-app.use("/api/v1/movies", movieRouter);
-app.use("/api/v1/users", userRouter);
+app.use("/api/movies/v1", movieRouter);
+app.use("/api/users/v1", userRouter);
 
 // GLOBAL ERROR HANDLER
 app.use(globalErrorHandler);
